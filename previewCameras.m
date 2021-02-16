@@ -1,8 +1,11 @@
 function previewCameras()
+gigeinfo = imaqhwinfo('gige');
+numCamerasFound = numel(gigeinfo.DeviceIDs);
+
 % Disconnect from all cameras from main MATLAB process and workers
 delete(imaqfind);
 
-for labindex = 1:2
+for labindex = 1:numCamerasFound
     cameraID = labindex;
     v(labindex) = videoinput('gige', cameraID);
     s(labindex) = v(labindex).Source;

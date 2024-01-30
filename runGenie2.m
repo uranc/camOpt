@@ -1,17 +1,28 @@
 %Same as runGenie with preview
 %Main Settings to change for brightness:
 % - var: exposureTime: 15000-30000 
-% - var: gainRaw (-60 - 120); 70 default
+% - var: gainRaw (-60 to 120); 70 default
+
+% exposureTime = 19501; 
+% gainRaw = 75;
 
 % C:\install\Matlab_Code\camOpt\deleteMeToStop.txt > delete this txt file to stop acquisition
 % This can take up to 6 seconds to complete
 
-function runGenie2(fDir)
-% Main Settings to change for brightness:
-exposureTime = 19501; 
-gainRaw = 70;
+function runGenie2(fDir, gainRaw, exposureTime)
+
+if nargin==1
+    exposureTime = 19501; 
+    gainRaw = 75;  
+elseif nargin==2
+    exposureTime = 19501; 
+end
 
 savePngInterval = 4.9; %default 4.9
+
+if ~contains(fDir,'cam','IgnoreCase',true)
+    fDir = ['cam_', fDir];
+end
 
 saveDir = 'C:\PupilCamera\Genie';
 if ~exist('fDir', 'var')
@@ -55,7 +66,7 @@ v.LoggingMode = 'disk';
 % Configure properties that are camera specific
 if strcmp(s.DeviceModelName, 'Genie M1280')
     % Configure properties common for both cameras
-    s.PacketSize = 8000; %8192
+    s.PacketSize = 8192;  % alt val: 8000 or 8192
     s.LineSelector = 'Line4';
     v.FramesPerTrigger = Inf;
     v.LoggingMode = 'disk';
@@ -141,9 +152,8 @@ while true
             c = 1;
             closepreview(v);
             fprintf('Waiting for logged frames to be saved...\n');
-            while (v.FramesAcquired ~= v.DiskLoggerFrameCount) && (c < 6)
-                fprintf('%d Frames remaining %6d\n',(round(v.FramesAcquired-v.DiskLoggerFrameCount)), c)
-                pause(1);
+            while (v.FramesAcquired ~= v.DiskLoggerFrameCount) && (c < 51)                fprintf('%d Frames remaining %6d\n',(round(v.FramesAcquired-v.DiskLoggerFrameCount)), c)
+                pause(.1);
                 fprintf('\b\b\b\b\b\b\n');
                 c = c+1;
             end
@@ -170,7 +180,6 @@ disp('beer time')
 delete(v);
 delete(imaqfind);
 imaqreset;
-
 end
 
 %% Nested Functions:

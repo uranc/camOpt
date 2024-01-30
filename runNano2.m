@@ -1,21 +1,36 @@
 %Same as runGenie with preview
 %Main Settings to change for brightness:
 % - var: exposureTime: 15000-30000 
-% - var: gainRaw (0 - 480); 110 default
+% - var: gainRaw (0 to 480); 110 default
 % - var: fps (0 - 65); 30 default FramesPerSec
 % Note: max fps is dependent on the exposureTime. If exposureTime is too high
 % fps will be less.
 
+% exposureTime = 19501; 
+% gainRaw = 75;
+% fps = 50; % applies to Nano cam only!
+
 % C:\install\Matlab_Code\camOpt\deleteMeToStop.txt > delete this txt file to stop acquisition
 % This can take up to 6 seconds to complete
 
-function runNano2(fDir)
-% Main Settings to change for brightness:
-exposureTime = 19501; 
-gainRaw = 110;
-fps = 50; % applies to Nano cam only!
+function runNano2(fDir, gainRaw, exposureTime, fps)
+
+if nargin==1
+    gainRaw = 75;  
+    exposureTime = 19501; 
+    fps = 30;
+elseif nargin==2
+    exposureTime = 19501; 
+    fps = 30;
+elseif nargin==3
+    fps = 30;
+end
 
 savePngInterval = 4.9; %default 4.9
+
+if ~contains(fDir,'cam','IgnoreCase',true)
+    fDir = ['cam_', fDir];
+end
 
 saveDir = 'C:\PupilCamera\Nano';
 if ~exist('fDir', 'var')
@@ -49,7 +64,7 @@ flushdata(v);
 
 assert(strcmp(s.DeviceModelName, 'Nano-M1450'), 'Wrong Camera, Only New Camera')
 % Configure properties common for both cameras
-s.PacketSize = 8192;  % alt val: 8192;
+s.PacketSize = 8192;  % alt val: 8000 or 8192
 s.ExposureTime = exposureTime;
 s.LineSelector = 'Line4';
 v.FramesPerTrigger = Inf;
@@ -125,9 +140,9 @@ while true
             c = 1;
             closepreview(v);
             fprintf('Waiting for logged frames to be saved...\n');
-            while (v.FramesAcquired ~= v.DiskLoggerFrameCount) && (c < 6)
+            while (v.FramesAcquired ~= v.DiskLoggerFrameCount) && (c < 51)
                 fprintf('%d Frames Behind %6d\n',(round(v.FramesAcquired-v.DiskLoggerFrameCount)), c)
-                pause(1);
+                pause(.1);
                 fprintf('\b\b\b\b\b\b\n');
                 c = c+1;
             end

@@ -1,8 +1,27 @@
-function previewCameras()
-% Main Settings to change for brightness:
-exposureTime = 19501; 
-gainRaw = 70;
-fps = 30; % applies to Nano cam only!
+%Same as runGenie with preview
+%Main Settings to change for brightness:
+% - var: exposureTime: 15000-30000 
+% - var: gainRaw (0 - 480); 110 default
+% - var: fps (0 - 65); 30 default FramesPerSec
+% Note: max fps is dependent on the exposureTime. If exposureTime is too high
+% fps will be less.
+
+% exposureTime = 19501; 
+% gainRaw = 75;
+% fps = 30; % applies to Nano cam only!
+
+function previewCameras(gainRaw, exposureTime, fps)
+
+if nargin==0
+    gainRaw = 75;  
+    exposureTime = 19501; 
+    fps = 30;
+elseif nargin==1
+    exposureTime = 19501; 
+    fps = 30;
+elseif nargin==2
+    fps = 30;
+end
 
 gigeinfo = imaqhwinfo('gige');
 numCamerasFound = numel(gigeinfo.DeviceIDs);
@@ -17,7 +36,7 @@ for labindex = 1:numCamerasFound
     s(labindex) = v(labindex).Source;
     
     % Configure properties common for both cameras
-    s(labindex).PacketSize = 8000;
+    s(labindex).PacketSize =  8192;  % alt val: 8000 or 8192
 %     s(labindex).ExposureTime = 10000;
     s(labindex).LineSelector = 'Line4';
     v(labindex).FramesPerTrigger = Inf;
@@ -44,7 +63,7 @@ for labindex = 1:numCamerasFound
     %New basic preview
 	preview(v(labindex))
 	
-	%Old preview`
+	%Old preview
 	%{
     figure('Toolbar','none',...
         'Menubar', 'none',...

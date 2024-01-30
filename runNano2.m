@@ -26,7 +26,7 @@ elseif nargin==3
     fps = 30;
 end
 
-savePngInterval = 4.9; %default 4.9
+savePngInterval = 2.9; 
 
 if ~contains(fDir,'cam','IgnoreCase',true)
     fDir = ['cam_', fDir];
@@ -35,7 +35,6 @@ end
 saveDir = 'C:\PupilCamera\Nano';
 if ~exist('fDir', 'var')
     fDir = 'fileDir';
-%     fileName = [fDir, sprintf('_cam1_%d', round(1e6*datenum(datetime('now')))), '.mp4'];
     fileName = [fDir, sprintf('_nano_%s', char(datetime('now','Format','yyy-MM-DD_HHmmss'))), '.mp4'];
     fileName = fullfile(saveDir, fDir, fileName);
     fprintf('I need a fileDir: \n runCameras(fileDir) writes to %s\n', fileName);
@@ -63,7 +62,6 @@ s = v.Source;
 flushdata(v);
 
 assert(strcmp(s.DeviceModelName, 'Nano-M1450'), 'Wrong Camera, Only New Camera')
-% Configure properties common for both cameras
 s.PacketSize = 8192;  % alt val: 8000 or 8192
 s.ExposureTime = exposureTime;
 s.LineSelector = 'Line4';
@@ -72,7 +70,7 @@ v.LoggingMode = 'disk'; %disk&memory
 
 % Configure properties that are camera specific
 if strcmp(s.DeviceModelName, 'Nano-M1450')
-%     s.Gain = 3.3884415613920256;  %Gain Settings!
+  % s.Gain = 3.3884415613920256;  %Gain Settings!
     s.GainRaw = gainRaw;
     s.acquisitionFrameRateControlMode = 'Programmable';
     s.AcquisitionFrameRate = fps; %old val: 24, max 66
@@ -97,7 +95,6 @@ end
 camOpt = 'starting';
 setCamOpt();
 
-
 %% Configure manual triggering and wait for acquisition trigger
 triggerconfig(v, 'immediate');
 pause(1);
@@ -111,7 +108,6 @@ saveCamLog(logTxt, [filePath, fileName(1:end-3), 'txt']);
 
 % exit
 camOpt = 'running';
-
 
 %% Display acquisition and logging status while logging
 fprintf('Begin writing to disk...\n  %s\n', [filePath, fileName]);
@@ -129,7 +125,7 @@ while true
         fprintf('#frames %d, #logged %d \n',dText);
         logTxt = sprintf('%s_%d_%d_%d \n', camOpt, round(1e8*datenum(datetime('now'))), dText);
         saveCamLog(logTxt, [filePath, fileName(1:end-3), 'txt']);
-        imwrite(getsnapshot(v), [filePath, fileName(1:end-3), 'png']);
+%         imwrite(getsnapshot(v), [filePath, fileName(1:end-3), 'png']);
         
         % get opts
         flagRunning = camIsRunning();
@@ -142,7 +138,9 @@ while true
             closepreview(v);
             fprintf('Waiting for logged frames to be saved...\n');
             while (v.FramesAcquired ~= v.DiskLoggerFrameCount) && (c < 51)
-                fprintf('%d Frames Behind %6d\n',(round(v.FramesAcquired-v.DiskLoggerFrameCount)), c)
+                if rem(c,10)==1
+                    fprintf('%d Frames Behind %6d\n',(round(v.FramesAcquired-v.DiskLoggerFrameCount)), round(c/10))
+                end
                 pause(.1);
                 fprintf('\b\b\b\b\b\b\n');
                 c = c+1;
@@ -163,6 +161,8 @@ saveCamLog(logTxt, [filePath, fileName(1:end-3), 'txt']);
 % closepreview(v);
 log2save(v.EventLog, filePath, fileName);
 disp('beer time');
+
+% Note:
 % D:\camOpt\deleteMeToStop.txt > deleting txt file stops acquisition
 % It can take up to 10 seconds
 

@@ -87,7 +87,7 @@ if strcmp(s.DeviceModelName, 'Genie M1280')
 %     fileName = [fDir, sprintf('_GenieCam1_%s',  char(datetime('now','Format','yyy-MM-DD_HHmmss'))), '.avi'];
 %     diskLogger = VideoWriter([filePath, fileName]);
 
-    diskLogger.FrameRate = 25;    
+    diskLogger.FrameRate = 24;    
     diskLogger.Quality = 95;  %old val: 75
     v.DiskLogger = diskLogger;
 end
@@ -171,8 +171,8 @@ fprintf('Final Frame Counts: \n#frames %d, #logged %d \n',dText);
 logTxt = sprintf('%s_%d_%d_%d \n', camOpt, round(1e8*datenum(datetime('now'))), dText);
 saveCamLog(logTxt, [filePath, fileName(1:end-3), 'txt']);
 % stoppreview(v);
-log2save(v.EventLog, filePath, fileName)
-disp('beer time')
+log2save(v.EventLog, filePath, fileName);
+disp('beer time');
 % D:\camOpt\deleteMeToStop.txt > deleting txt file stops acquisition
 % It can take up to 10 seconds
 

@@ -88,6 +88,7 @@ if strcmp(s.DeviceModelName, 'Nano-M1450')
     fileName = [fDir, sprintf('_nano_%s', char(datetime('now','Format','yyy-MM-DD_HHmmss'))), '.mp4'];
     diskLogger = VideoWriter([filePath, fileName], 'MPEG-4');
     diskLogger.FrameRate = s.AcquisitionFrameRate;
+    diskLogger.Quality = 95;  %old val: 75
     v.DiskLogger = diskLogger;
 end
 
@@ -160,8 +161,8 @@ fprintf('Final Frame Counts: \n#frames %d, #logged %d \n',dText);
 logTxt = sprintf('%s_%d_%d_%d \n', camOpt, round(1e8*datenum(datetime('now'))), dText);
 saveCamLog(logTxt, [filePath, fileName(1:end-3), 'txt']);
 % closepreview(v);
-log2save(v.EventLog, filePath, fileName)
-disp('beer time')
+log2save(v.EventLog, filePath, fileName);
+disp('beer time');
 % D:\camOpt\deleteMeToStop.txt > deleting txt file stops acquisition
 % It can take up to 10 seconds
 
